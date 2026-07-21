@@ -1,0 +1,6 @@
+{
+  "name": "Financial Calculator",
+  "description": "A high-fidelity 31-in-1 financial planning calculator suite, featuring comprehensive calculators for mortgages, investment growth, retirement, and tax planning.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
