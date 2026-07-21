@@ -633,7 +633,7 @@ export default function App() {
           <div className="animate-fadeIn space-y-20 pb-24">
             
             {/* HERO SECTION WITH REAL-TIME TACTILE COMPOUND PLAYGROUND */}
-            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16 lg:py-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9]/40 to-white overflow-hidden">
+            <section className="relative max-w-7xl mx-4 sm:mx-6 md:mx-8 xl:mx-auto mt-4 sm:mt-6 md:mt-8 mb-8 sm:mb-12 md:mb-16 py-8 sm:py-12 md:py-16 lg:py-20 px-4 sm:px-8 md:px-10 lg:px-16 rounded-2xl md:rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9]/40 to-white border border-neutral-200/50 overflow-hidden">
               
               {/* Soft modern glowing accent fields - correctly layered with z-0 */}
               <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
@@ -649,38 +649,38 @@ export default function App() {
                 }}
               ></div>
               
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
                 
                 {/* Left Column: Premium Branding & Headline */}
-                <div className="lg:col-span-7 space-y-8 text-left">
-                  <div className="inline-flex items-center gap-2 bg-white border border-blue-100 px-4 py-1.5 rounded-full shadow-xs">
-                    <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-xs font-semibold text-blue-800 tracking-tight">
+                <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
+                  <div className="inline-flex items-center gap-2 bg-white border border-blue-100 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
+                    <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                    <span className="text-[10px] sm:text-xs font-semibold text-blue-800 tracking-tight">
                       Fully Aligned with 2026 IRS Tax Codes & Standard Deductions
                     </span>
                   </div>
                   
                   <div className="space-y-4">
-                    <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#111827] tracking-tight leading-[1.05]">
+                    <h1 className="font-display text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold text-[#111827] tracking-tight leading-[1.1] sm:leading-[1.05]">
                       Empower Your Wealth.<br />
                       <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Compute with absolute privacy.</span>
                     </h1>
                     
-                    <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                    <p className="text-neutral-600 text-xs sm:text-sm md:text-base leading-relaxed max-w-xl">
                       Compute progressive tax liabilities, complete multi-decade compounding trajectories, and fixed amortization tables down to the single penny. No tracking, no user profiles, and no cloud-side registration. All math remains 100% inside your local device sandbox.
                     </p>
                   </div>
 
-                  <div className="flex flex-wrap gap-4 pt-2">
+                  <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 pt-2">
                     <a 
                       href="/tools"
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold rounded-xl h-12 px-8 text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95"
+                      className="w-full sm:w-auto bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold rounded-xl h-12 px-8 text-xs inline-flex items-center justify-center gap-2 transition-all active:scale-95"
                     >
                       Launch Calculator Suite <ArrowRight className="w-4 h-4" />
                     </a>
                     <a
                       href="/about"
-                      className="bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 font-extrabold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center transition-all shadow-xs active:scale-95"
+                      className="w-full sm:w-auto bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 font-extrabold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center transition-all active:scale-95"
                     >
                       Audit Calculation Formulas
                     </a>
@@ -709,7 +709,7 @@ export default function App() {
                               setSelectedCategory(cat);
                               navigateTo("/tools");
                             }}
-                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${colorClass}`}
+                            className={`px-3 py-1.5 rounded-lg text-[11px] sm:text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${colorClass}`}
                           >
                             <span>{cat}</span>
                             <ArrowUpRight className="w-3 h-3 opacity-60" />
@@ -721,7 +721,7 @@ export default function App() {
                 </div>
 
                 {/* Right Column: Live Tactile Compound Sandbox (Completely interactive) */}
-                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-850 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between space-y-6">
+                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-800/80 rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between space-y-6 max-w-2xl mx-auto lg:max-w-none w-full">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -z-10"></div>
                   
                   {/* Interactive Header */}
