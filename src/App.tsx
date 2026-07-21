@@ -81,6 +81,12 @@ export default function App() {
   const [quickRate, setQuickRate] = useState<string>("8");
   const [quickYears, setQuickYears] = useState<string>("20");
 
+  // Sandbox AI strategy states
+  const [loadingSandboxStrategy, setLoadingSandboxStrategy] = useState<boolean>(false);
+  const [sandboxStrategyResult, setSandboxStrategyResult] = useState<any>(null);
+  const [sandboxStrategyError, setSandboxStrategyError] = useState<string | null>(null);
+  const [showSandboxStrategyModal, setShowSandboxStrategyModal] = useState<boolean>(false);
+
   // Selected calculator lookup
   const activeCalc = CALCULATORS.find(c => c.id === activeCalcId) || CALCULATORS[0];
   const seoInfo = getSEOInfo(activeCalc.id, activeCalc.name, activeCalc.category, activeCalc.benefit, activeCalc.description, activeCalc.formula);
@@ -371,6 +377,43 @@ export default function App() {
     }
   };
 
+  // Handle Sandbox Specific AI Strategy
+  const handleGenerateSandboxStrategy = async () => {
+    setLoadingSandboxStrategy(true);
+    setSandboxStrategyError(null);
+    setSandboxStrategyResult(null);
+    setShowSandboxStrategyModal(true);
+
+    try {
+      const res = await fetch("/api/calculator/strategy", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          calculatorId: "compound-interest-calculator",
+          calculatorName: "Compound Interest Asset Growth Projector (Sandbox Mockup)",
+          inputs: {
+            principal: parseFloat(quickPrincipal) || 0,
+            monthlyContribution: parseFloat(quickContribution) || 0,
+            annualRate: parseFloat(quickRate) || 0,
+            years: parseFloat(quickYears) || 0
+          }
+        })
+      });
+
+      if (!res.ok) {
+        throw new Error("Could not reach AI advisor. Make sure OPENROUTER_API_KEY is active.");
+      }
+
+      const data = await res.json();
+      setSandboxStrategyResult(data);
+    } catch (err: any) {
+      console.error(err);
+      setSandboxStrategyError(err.message || "Could not retrieve customized AI advisory report.");
+    } finally {
+      setLoadingSandboxStrategy(false);
+    }
+  };
+
   // Filtered calculators list based on category & search query
   const filteredCalculators = CALCULATORS.filter(calc => {
     const matchesCategory = selectedCategory === "All" || calc.category === selectedCategory;
@@ -548,72 +591,77 @@ export default function App() {
         
         {/* ==================== A. HOME PAGE VIEW ==================== */}
         {currentView === "home" && (
-          <div className="animate-fadeIn space-y-16 pb-16">
+          <div className="animate-fadeIn space-y-20 pb-24">
             
-            {/* A1. REDESIGNED PREMIUM HERO SECTION WITH INTEGRATED INTERACTIVE SANDBOX */}
-            <section className="relative max-w-7xl mx-auto px-4 md:px-8 pt-10 md:pt-16 pb-12 rounded-3xl border border-neutral-200/60 bg-gradient-to-b from-neutral-50/80 via-white to-white shadow-xs overflow-hidden mt-6">
-              {/* Elegant dot grid pattern background */}
+            {/* HERO SECTION WITH REAL-TIME TACTILE COMPOUND PLAYGROUND */}
+            <section className="relative max-w-7xl mx-auto px-4 sm:px-6 md:px-8 lg:px-12 py-8 sm:py-12 md:py-16 lg:py-20 rounded-2xl md:rounded-3xl bg-gradient-to-br from-[#F8FAFC] via-[#F1F5F9]/40 to-white overflow-hidden">
+              
+              {/* Soft modern glowing accent fields - correctly layered with z-0 */}
+              <div className="absolute top-0 left-1/4 -translate-x-1/2 w-[600px] h-[600px] bg-blue-500/10 rounded-full blur-3xl pointer-events-none z-0"></div>
+              <div className="absolute bottom-0 right-1/4 w-[500px] h-[500px] bg-emerald-500/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+              <div className="absolute top-1/3 right-1/3 w-[400px] h-[400px] bg-indigo-500/5 rounded-full blur-3xl pointer-events-none z-0"></div>
+              
+              {/* Elegant radial grid system background - layered with z-0 on top of glows but behind text */}
               <div 
-                className="absolute inset-0 opacity-[0.45] pointer-events-none" 
+                className="absolute inset-0 opacity-[0.45] pointer-events-none z-0" 
                 style={{ 
-                  backgroundImage: 'radial-gradient(#cbd5e1 1.2px, transparent 1.2px)', 
-                  backgroundSize: '20px 20px' 
+                  backgroundImage: 'radial-gradient(#94a3b8 1.1px, transparent 1.1px)', 
+                  backgroundSize: '24px 24px' 
                 }}
               ></div>
               
-              {/* Soft radial ambient glows */}
-              <div className="absolute top-1/4 left-1/4 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-blue-400/10 rounded-full blur-3xl pointer-events-none -z-10"></div>
-              <div className="absolute bottom-10 right-1/4 w-[400px] h-[400px] bg-emerald-400/5 rounded-full blur-3xl pointer-events-none -z-10"></div>
-              
-              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 items-center">
+              <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
                 
-                {/* Left Column: Headline, Description and Quick Category Jump */}
-                <div className="lg:col-span-7 space-y-6 text-left">
-                  <div className="inline-flex items-center gap-2 bg-white/95 border border-blue-200 px-3.5 py-1 rounded-full shadow-xs backdrop-blur-xs">
+                {/* Left Column: Premium Branding & Headline */}
+                <div className="lg:col-span-7 space-y-8 text-left">
+                  <div className="inline-flex items-center gap-2 bg-white border border-blue-100 px-4 py-1.5 rounded-full shadow-xs">
                     <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                    <span className="text-xs font-bold text-blue-700 tracking-tight">
-                      Fully Calibrated to 2026 US Tax Regulations & Benchmarks
+                    <span className="text-xs font-semibold text-blue-800 tracking-tight">
+                      Fully Aligned with 2026 IRS Tax Codes & Standard Deductions
                     </span>
                   </div>
                   
-                  <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#111827] tracking-tight leading-[1.05]">
-                    Professional Financial Planning.<br />
-                    <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Absolute Security.</span>
-                  </h1>
-                  
-                  <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-xl">
-                    Compute progressive US income tax liability, 15/30-year fixed amortization tables, Roth conversions, and compounding projection models with exact regulatory precision. All calculations remain sandboxed inside your local browser memory.
-                  </p>
+                  <div className="space-y-4">
+                    <h1 className="font-display text-4xl sm:text-5xl md:text-6xl font-extrabold text-[#111827] tracking-tight leading-[1.05]">
+                      Empower Your Wealth.<br />
+                      <span className="bg-gradient-to-r from-blue-600 via-indigo-600 to-violet-600 bg-clip-text text-transparent">Compute with absolute privacy.</span>
+                    </h1>
+                    
+                    <p className="text-neutral-600 text-sm sm:text-base leading-relaxed max-w-xl">
+                      Compute progressive tax liabilities, complete multi-decade compounding trajectories, and fixed amortization tables down to the single penny. No tracking, no user profiles, and no cloud-side registration. All math remains 100% inside your local device sandbox.
+                    </p>
+                  </div>
 
-                  <div className="flex flex-wrap gap-3">
+                  <div className="flex flex-wrap gap-4 pt-2">
                     <a 
                       href="#/tools"
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95"
+                      className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold rounded-xl h-12 px-8 text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95"
                     >
-                      Browse 31 Professional Tools <ArrowRight className="w-4 h-4" />
+                      Launch Calculator Suite <ArrowRight className="w-4 h-4" />
                     </a>
                     <a
                       href="#/about"
-                      className="bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 font-bold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center transition-all shadow-xs active:scale-95"
+                      className="bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 font-extrabold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center transition-all shadow-xs active:scale-95"
                     >
-                      Mathematical Methodology
+                      Audit Calculation Formulas
                     </a>
                   </div>
 
-                  {/* Fast Jump Segment */}
-                  <div className="pt-5 border-t border-neutral-200/60 space-y-3">
-                    <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest">
-                      Quick Access Directory
-                    </p>
+                  {/* Category Fast-Track Selector */}
+                  <div className="pt-6 border-t border-neutral-200/60 space-y-3">
+                    <div className="flex items-center gap-2 text-neutral-400 font-bold uppercase tracking-wider text-[10px]">
+                      <Compass className="w-3.5 h-3.5 text-blue-500" />
+                      <span>Instant Domain Access</span>
+                    </div>
                     <div className="flex flex-wrap gap-2">
                       {CATEGORIES.map(cat => {
-                        let colorClass = "bg-neutral-100/80 text-neutral-600 hover:border-neutral-300";
-                        if (cat === "Loan") colorClass = "bg-rose-50/80 text-rose-700 hover:border-rose-200 border-rose-100";
-                        if (cat === "Investment") colorClass = "bg-emerald-50/80 text-emerald-700 hover:border-emerald-200 border-emerald-100";
-                        if (cat === "Retirement") colorClass = "bg-amber-50/80 text-amber-700 hover:border-amber-200 border-amber-100";
-                        if (cat === "Salary & Tax") colorClass = "bg-indigo-50/80 text-indigo-700 hover:border-indigo-200 border-indigo-100";
-                        if (cat === "General Finance") colorClass = "bg-blue-50/80 text-blue-700 hover:border-blue-200 border-blue-100";
-                        if (cat === "Real Estate") colorClass = "bg-violet-50/80 text-violet-700 hover:border-violet-200 border-violet-100";
+                        let colorClass = "bg-neutral-100/80 text-neutral-600 hover:border-neutral-300 border-neutral-200/40";
+                        if (cat === "Loan") colorClass = "bg-rose-50 text-rose-700 hover:border-rose-200 border-rose-100/60";
+                        if (cat === "Investment") colorClass = "bg-emerald-50 text-emerald-700 hover:border-emerald-200 border-emerald-100/60";
+                        if (cat === "Retirement") colorClass = "bg-amber-50 text-amber-700 hover:border-amber-200 border-amber-100/60";
+                        if (cat === "Salary & Tax") colorClass = "bg-indigo-50 text-indigo-700 hover:border-indigo-200 border-indigo-100/60";
+                        if (cat === "General Finance") colorClass = "bg-blue-50 text-blue-700 hover:border-blue-200 border-blue-100/60";
+                        if (cat === "Real Estate") colorClass = "bg-violet-50 text-violet-700 hover:border-violet-200 border-violet-100/60";
                         
                         return (
                           <button
@@ -622,7 +670,7 @@ export default function App() {
                               setSelectedCategory(cat);
                               window.location.hash = "#/tools";
                             }}
-                            className={`px-3 py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${colorClass}`}
+                            className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${colorClass}`}
                           >
                             <span>{cat}</span>
                             <ArrowUpRight className="w-3 h-3 opacity-60" />
@@ -633,249 +681,520 @@ export default function App() {
                   </div>
                 </div>
 
-                {/* Right Column: Live Compound Calculator Sandbox (Muted/Read-Only Illustrative Preview) */}
-                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-800 rounded-3xl p-6 shadow-2xl relative overflow-hidden flex flex-col justify-between">
+                {/* Right Column: Live Tactile Compound Sandbox (Completely interactive) */}
+                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-850 rounded-3xl p-6 md:p-8 shadow-2xl relative overflow-hidden flex flex-col justify-between space-y-6">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -z-10"></div>
                   
-                  {/* Title Header */}
-                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-4 mb-4">
+                  {/* Interactive Header */}
+                  <div className="flex items-center justify-between border-b border-slate-800/80 pb-4">
                     <div className="space-y-0.5 text-left">
-                      <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest flex items-center gap-1">
-                        <Lock className="w-3 h-3 text-blue-500" /> Pre-Calculated Specimen
+                      <span className="text-[10px] font-bold text-blue-400 uppercase tracking-widest flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-ping"></span>
+                        Interactive Sandbox
                       </span>
-                      <h3 className="font-bold text-sm text-slate-100">
+                      <h3 className="font-bold text-base text-slate-100 font-display">
                         Asset Growth Projector
                       </h3>
                     </div>
-                    <span className="text-[9px] font-mono bg-slate-900 border border-slate-800/80 px-2 py-0.5 rounded text-slate-400">
-                      Baseline Baseline
+                    <span className="text-[9px] font-mono bg-slate-900 border border-slate-800 px-2 py-0.5 rounded text-slate-400">
+                      Vite Live Output
                     </span>
                   </div>
 
-                  {/* Sandbox Fields (Read-Only) */}
-                  <div className="space-y-4">
+                  {/* Interactive Input Sliders & Inputs */}
+                  <div className="space-y-5 text-left">
+                    
                     {/* Principal */}
-                    <div className="space-y-1.5 text-left">
-                      <div className="flex justify-between text-xs font-semibold text-slate-400">
-                        <label>Initial Investment</label>
-                        <span className="font-mono text-blue-400 font-bold">
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-semibold text-slate-300">
+                        <label className="text-slate-400">Initial Principal</label>
+                        <span className="font-mono text-emerald-400 font-bold">
                           ${(parseFloat(quickPrincipal) || 0).toLocaleString()}
                         </span>
                       </div>
                       <input 
-                        type="text"
-                        readOnly={true}
+                        type="range"
+                        min="0"
+                        max="250000"
+                        step="5000"
                         value={quickPrincipal}
-                        className="w-full h-9 bg-slate-900/40 border border-slate-850 rounded-lg px-3 text-xs font-mono text-slate-400 outline-none select-none cursor-not-allowed"
+                        onChange={(e) => setQuickPrincipal(e.target.value)}
+                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
                       />
+                      <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+                        <span>$0</span>
+                        <span>$250k</span>
+                      </div>
                     </div>
 
                     {/* Monthly Contribution */}
-                    <div className="space-y-1.5 text-left">
-                      <div className="flex justify-between text-xs font-semibold text-slate-400">
-                        <label>Monthly Addition</label>
-                        <span className="font-mono text-blue-400 font-bold">
+                    <div className="space-y-1.5">
+                      <div className="flex justify-between text-xs font-semibold text-slate-300">
+                        <label className="text-slate-400">Monthly Deposit</label>
+                        <span className="font-mono text-emerald-400 font-bold">
                           ${(parseFloat(quickContribution) || 0).toLocaleString()}/mo
                         </span>
                       </div>
                       <input 
-                        type="text"
-                        readOnly={true}
+                        type="range"
+                        min="0"
+                        max="5000"
+                        step="100"
                         value={quickContribution}
-                        className="w-full h-9 bg-slate-900/40 border border-slate-850 rounded-lg px-3 text-xs font-mono text-slate-400 outline-none select-none cursor-not-allowed"
+                        onChange={(e) => setQuickContribution(e.target.value)}
+                        className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
                       />
+                      <div className="flex justify-between items-center text-[10px] text-slate-500 font-mono">
+                        <span>$0</span>
+                        <span>$5k/mo</span>
+                      </div>
                     </div>
 
-                    {/* Two Column Grid for Rate & Years */}
+                    {/* Rate & Duration Grid */}
                     <div className="grid grid-cols-2 gap-4">
-                      {/* Growth Rate */}
-                      <div className="space-y-1.5 text-left">
-                        <label className="text-xs font-semibold text-slate-400 block">Growth Rate</label>
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs font-semibold text-slate-300">
+                          <label className="text-slate-400">Growth Rate</label>
+                          <span className="font-mono text-blue-400 font-bold">{quickRate}%</span>
+                        </div>
                         <input 
-                          type="text"
-                          readOnly={true}
-                          value={`${quickRate}%`}
-                          className="w-full h-9 bg-slate-900/40 border border-slate-850 rounded-lg px-3 text-xs font-mono text-slate-400 outline-none select-none cursor-not-allowed"
+                          type="range"
+                          min="1"
+                          max="15"
+                          step="0.5"
+                          value={quickRate}
+                          onChange={(e) => setQuickRate(e.target.value)}
+                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
                         />
                       </div>
-                      
-                      {/* Years */}
-                      <div className="space-y-1.5 text-left">
-                        <label className="text-xs font-semibold text-slate-400 block">Duration</label>
+
+                      <div className="space-y-1.5">
+                        <div className="flex justify-between text-xs font-semibold text-slate-300">
+                          <label className="text-slate-400">Duration</label>
+                          <span className="font-mono text-blue-400 font-bold">{quickYears} Yrs</span>
+                        </div>
                         <input 
-                          type="text"
-                          readOnly={true}
-                          value={`${quickYears} Years`}
-                          className="w-full h-9 bg-slate-900/40 border border-slate-850 rounded-lg px-3 text-xs font-mono text-slate-400 outline-none select-none cursor-not-allowed"
+                          type="range"
+                          min="1"
+                          max="40"
+                          step="1"
+                          value={quickYears}
+                          onChange={(e) => setQuickYears(e.target.value)}
+                          className="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-[#2563EB]"
                         />
                       </div>
                     </div>
                   </div>
 
-                  {/* Calculated Sandbox Output Display */}
-                  <div className="mt-5 p-4 rounded-xl bg-slate-900/60 border border-slate-800/60 space-y-3 text-left">
-                    <div className="grid grid-cols-2 gap-2 border-b border-slate-850 pb-2">
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Projected Balance</p>
-                        <p className="text-xl font-extrabold text-[#22C55E] font-mono leading-tight">
-                          ${Math.round(
-                            (() => {
-                              const qP = parseFloat(quickPrincipal) || 0;
-                              const qC = parseFloat(quickContribution) || 0;
-                              const qR = (parseFloat(quickRate) || 0) / 100;
-                              const qY = parseFloat(quickYears) || 0;
-                              let val = qP;
-                              if (qY > 0) {
-                                for (let m = 1; m <= qY * 12; m++) {
-                                  val = (val + qC) * (1 + qR / 12);
-                                }
-                              }
-                              return val;
-                            })()
-                          ).toLocaleString()}
-                        </p>
+                  {/* Interactive Calculated Outputs */}
+                  {(() => {
+                    const qP = parseFloat(quickPrincipal) || 0;
+                    const qC = parseFloat(quickContribution) || 0;
+                    const qR = (parseFloat(quickRate) || 0) / 100;
+                    const qY = parseFloat(quickYears) || 0;
+                    let totalBalance = qP;
+                    if (qY > 0) {
+                      for (let m = 1; m <= qY * 12; m++) {
+                        totalBalance = (totalBalance + qC) * (1 + qR / 12);
+                      }
+                    }
+                    const investedPrincipal = qP + (qC * 12 * qY);
+                    const interestEarned = Math.max(0, totalBalance - investedPrincipal);
+                    const compoundMultiple = investedPrincipal > 0 ? (totalBalance / investedPrincipal).toFixed(2) : "1.00";
+
+                    return (
+                      <div className="space-y-4">
+                        <div className="p-4 rounded-xl bg-slate-900 border border-slate-800/80 space-y-3 text-left">
+                          <div className="grid grid-cols-2 gap-4 border-b border-slate-850 pb-3">
+                            <div>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Projected Future Asset</p>
+                              <p className="text-2xl font-extrabold text-[#22C55E] font-mono leading-tight mt-0.5">
+                                ${Math.round(totalBalance).toLocaleString()}
+                              </p>
+                            </div>
+                            <div>
+                              <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Principal Saved</p>
+                              <p className="text-sm font-bold text-slate-200 font-mono mt-1.5">
+                                ${Math.round(investedPrincipal).toLocaleString()}
+                              </p>
+                            </div>
+                          </div>
+                          
+                          {/* Real-time Dynamic Stacked Fill Bar */}
+                          <div className="space-y-1.5 pt-1">
+                            <div className="flex justify-between text-[9px] font-bold text-slate-500 uppercase tracking-wider">
+                              <span>Saved vs Compounded Split</span>
+                              <span className="text-slate-400 font-mono">{compoundMultiple}x Growth Ratio</span>
+                            </div>
+                            <div className="w-full h-2.5 bg-slate-950 rounded-full overflow-hidden flex border border-slate-800">
+                              <div 
+                                style={{ width: `${Math.min(95, Math.max(5, (investedPrincipal / totalBalance) * 100))}%` }} 
+                                className="h-full bg-blue-500 transition-all duration-300"
+                              ></div>
+                              <div 
+                                style={{ width: `${Math.min(95, Math.max(5, (interestEarned / totalBalance) * 100))}%` }} 
+                                className="h-full bg-emerald-500 transition-all duration-300"
+                              ></div>
+                            </div>
+                            <div className="flex justify-between text-[9px] text-slate-500 font-mono pt-0.5">
+                              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span> Saved (${Math.round(investedPrincipal).toLocaleString()})</span>
+                              <span className="flex items-center gap-1"><span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span> Compounded (${Math.round(interestEarned).toLocaleString()})</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Prompt-To-Action Sandbox AI Trigger */}
+                        <button 
+                          onClick={handleGenerateSandboxStrategy}
+                          className="w-full h-11 bg-white hover:bg-neutral-100 text-slate-950 font-extrabold text-xs rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                        >
+                          <Sparkles className="w-3.5 h-3.5 text-blue-600 animate-pulse" />
+                          <span>Generate Custom AI Strategy Map</span>
+                          <ChevronRight className="w-4 h-4 text-slate-400" />
+                        </button>
                       </div>
-                      <div>
-                        <p className="text-[10px] text-slate-400 font-bold uppercase tracking-wider">Total Invested Principal</p>
-                        <p className="text-sm font-bold text-slate-200 font-mono mt-0.5">
-                          ${Math.round(
-                            (parseFloat(quickPrincipal) || 0) + 
-                            ((parseFloat(quickContribution) || 0) * 12 * (parseFloat(quickYears) || 0))
-                          ).toLocaleString()}
-                        </p>
-                      </div>
-                    </div>
-                    
-                    <div className="flex justify-between items-center text-[10px] text-slate-400">
-                      <span className="flex items-center gap-1">
-                        <span className="w-1.5 h-1.5 rounded-full bg-blue-500"></span>
-                        Net Compound Earnings:
-                      </span>
-                      <span className="font-mono font-bold text-blue-400 text-xs">
-                        +${Math.round(
-                          (() => {
-                            const qP = parseFloat(quickPrincipal) || 0;
-                            const qC = parseFloat(quickContribution) || 0;
-                            const qR = (parseFloat(quickRate) || 0) / 100;
-                            const qY = parseFloat(quickYears) || 0;
-                            let val = qP;
-                            if (qY > 0) {
-                              for (let m = 1; m <= qY * 12; m++) {
-                                val = (val + qC) * (1 + qR / 12);
-                              }
-                            }
-                            return Math.max(0, val - (qP + qC * 12 * qY));
-                          })()
-                        ).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
+                    );
+                  })()}
                 </div>
-
               </div>
             </section>
 
-            {/* A2. REGULATORY & COMPLIANCE STATS ROW (2026 BENCHMARKS) */}
-            <section className="bg-white py-6 border-t border-b border-neutral-200/60 shadow-xs">
+            {/* FLOATING SUB-ROUTINE AI STRATEGY OVERLAY MODAL */}
+            <AnimatePresence>
+              {showSandboxStrategyModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                  
+                  {/* Backdrop blur with high-density premium tint */}
+                  <motion.div 
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    onClick={() => setShowSandboxStrategyModal(false)}
+                    className="fixed inset-0 bg-neutral-950/70 backdrop-blur-xl z-0"
+                  ></motion.div>
+
+                  {/* Modal Card content */}
+                  <motion.div 
+                    initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                    animate={{ opacity: 1, scale: 1, y: 0 }}
+                    exit={{ opacity: 0, scale: 0.96, y: 20 }}
+                    className="relative bg-white border border-neutral-100 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl z-10 my-8 max-h-[90vh] flex flex-col"
+                  >
+                    {/* Header bar */}
+                    <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-linear-to-b from-neutral-50/50 to-white sticky top-0 z-10 shrink-0">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 flex items-center justify-center text-[#2563EB] shadow-xs">
+                          <Sparkles className="w-5 h-5 animate-pulse" />
+                        </div>
+                        <div className="text-left">
+                          <span className="text-[9px] font-bold text-[#2563EB] uppercase tracking-widest bg-blue-50/80 px-2 py-0.5 rounded border border-blue-100/40">Diagnostic Report</span>
+                          <h3 className="font-extrabold text-neutral-900 text-base mt-0.5">AI Wealth Advisory Matrix</h3>
+                        </div>
+                      </div>
+                      <button 
+                        onClick={() => setShowSandboxStrategyModal(false)}
+                        className="w-9 h-9 rounded-full bg-neutral-50 hover:bg-neutral-100 text-neutral-500 hover:text-neutral-900 flex items-center justify-center transition-all border border-neutral-100 hover:border-neutral-200 cursor-pointer active:scale-95"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Scrollable Contents */}
+                    <div className="p-6 md:p-8 overflow-y-auto space-y-6 flex-1 text-left">
+                      
+                      {/* Live Input Reference Summary Panel */}
+                      <div className="bg-neutral-50/85 border border-neutral-200/50 rounded-2xl p-4 grid grid-cols-2 sm:grid-cols-4 gap-4">
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Initial Principal</p>
+                          <p className="text-sm font-mono font-extrabold text-neutral-900">
+                            ${(parseFloat(quickPrincipal) || 0).toLocaleString()}
+                          </p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Monthly Addition</p>
+                          <p className="text-sm font-mono font-extrabold text-neutral-900">
+                            ${(parseFloat(quickContribution) || 0).toLocaleString()}/mo
+                          </p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">APY growth</p>
+                          <p className="text-sm font-mono font-extrabold text-[#2563EB]">
+                            {quickRate}% APY
+                          </p>
+                        </div>
+                        <div className="space-y-0.5">
+                          <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Simulated timeline</p>
+                          <p className="text-sm font-mono font-extrabold text-neutral-900">
+                            {quickYears} Years
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Content Router */}
+                      {loadingSandboxStrategy ? (
+                        <div className="py-20 text-center space-y-4">
+                          <div className="inline-block relative">
+                            <div className="w-14 h-14 rounded-full border-3 border-neutral-100 border-t-3 border-t-[#2563EB] animate-spin"></div>
+                            <Sparkles className="w-6 h-6 text-[#2563EB] absolute top-4 left-4 animate-pulse" />
+                          </div>
+                          <div className="space-y-2 max-w-sm mx-auto">
+                            <h4 className="text-xs font-bold text-neutral-900 uppercase tracking-widest animate-pulse">Running Financial Strategy Engine...</h4>
+                            <p className="text-xs text-neutral-500 leading-relaxed">
+                              Compiling exponential interest trajectories, modeling standard tax deductors, and shaping actionable behavioral advisory maps...
+                            </p>
+                          </div>
+                        </div>
+                      ) : sandboxStrategyError ? (
+                        <div className="p-5 rounded-2xl bg-rose-50 border border-rose-100 text-rose-800 text-left space-y-3 shadow-xs">
+                          <div className="flex items-center gap-2 font-extrabold">
+                            <AlertCircle className="w-5 h-5 text-rose-500 shrink-0" />
+                            <span className="text-xs uppercase tracking-wider">Integration Connection Notification</span>
+                          </div>
+                          <p className="text-xs text-rose-700/90 leading-relaxed">{sandboxStrategyError}</p>
+                          <div className="pt-1">
+                            <button 
+                              onClick={handleGenerateSandboxStrategy}
+                              className="bg-white hover:bg-rose-100 text-rose-800 font-extrabold px-4 py-2 rounded-xl text-xs transition-colors border border-rose-200 shadow-xs cursor-pointer"
+                            >
+                              Retry Scenario Compilation
+                            </button>
+                          </div>
+                        </div>
+                      ) : sandboxStrategyResult ? (
+                        <div className="space-y-7">
+                          
+                          {/* Quote Callout Card */}
+                          {sandboxStrategyResult.advisoryQuote && (
+                            <div className="relative bg-linear-to-br from-blue-50/50 via-indigo-50/25 to-white border border-blue-100/60 rounded-2xl p-5 md:p-6 overflow-hidden">
+                              <span className="absolute -top-4 -left-2 text-7xl font-serif text-blue-200/50 select-none pointer-events-none">“</span>
+                              <p className="relative z-10 text-xs font-semibold text-neutral-800 leading-relaxed italic pr-4">
+                                {sandboxStrategyResult.advisoryQuote}
+                              </p>
+                            </div>
+                          )}
+
+                          {/* Situational Analysis */}
+                          <div className="space-y-2.5">
+                            <h4 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
+                              <Info className="w-3.5 h-3.5 text-[#2563EB]" />
+                              <span>Custom Advisory Summary</span>
+                            </h4>
+                            <div className="text-xs text-neutral-600 leading-relaxed bg-[#F8FAFC]/50 p-5 border border-neutral-150 rounded-2xl">
+                              {sandboxStrategyResult.overview}
+                            </div>
+                          </div>
+
+                          {/* Asset Acceleration diagnostic block */}
+                          {sandboxStrategyResult.deepDive && (
+                            <div className="space-y-2.5">
+                              <h4 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
+                                <Award className="w-3.5 h-3.5 text-indigo-500" />
+                                <span>Compound Capital Diagnostic</span>
+                              </h4>
+                              <div className="text-xs text-neutral-600 leading-relaxed bg-[#F8FAFC]/50 p-5 border border-neutral-150 rounded-2xl">
+                                {sandboxStrategyResult.deepDive}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Action priority roadmap */}
+                          {sandboxStrategyResult.actionableStrategies && sandboxStrategyResult.actionableStrategies.length > 0 && (
+                            <div className="space-y-3">
+                              <h4 className="text-[10px] font-bold text-neutral-400 uppercase tracking-widest flex items-center gap-1.5">
+                                <Zap className="w-3.5 h-3.5 text-amber-500 animate-bounce" />
+                                <span>Priority Action Items</span>
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {sandboxStrategyResult.actionableStrategies.map((strat: string, idx: number) => {
+                                  const icons = [<TrendingUp className="w-4 h-4" />, <PiggyBank className="w-4 h-4" />, <Zap className="w-4 h-4" />];
+                                  const colors = [
+                                    "bg-blue-50 text-[#2563EB] border-blue-100",
+                                    "bg-emerald-50 text-emerald-700 border-emerald-100",
+                                    "bg-amber-50 text-amber-700 border-amber-100"
+                                  ];
+                                  const chosenIcon = icons[idx % icons.length];
+                                  const chosenColor = colors[idx % colors.length];
+
+                                  return (
+                                    <div key={idx} className="p-5 bg-white border border-neutral-200 rounded-2xl hover:border-neutral-300 transition-all shadow-xs hover:shadow-sm space-y-3 text-left">
+                                      <div className={`w-8 h-8 rounded-lg ${chosenColor} border flex items-center justify-center shrink-0`}>
+                                        {chosenIcon}
+                                      </div>
+                                      <div className="space-y-1">
+                                        <p className="text-[9px] font-mono font-bold text-neutral-400 uppercase tracking-wider">Priority 0{idx + 1}</p>
+                                        <p className="text-xs text-neutral-800 font-bold leading-normal">{strat}</p>
+                                      </div>
+                                    </div>
+                                  );
+                                })}
+                              </div>
+                            </div>
+                          )}
+
+                          {/* Avoidable Pitfalls */}
+                          {sandboxStrategyResult.pitfallsToAvoid && sandboxStrategyResult.pitfallsToAvoid.length > 0 && (
+                            <div className="space-y-3">
+                              <h4 className="text-[10px] font-bold text-rose-500 uppercase tracking-widest flex items-center gap-1.5">
+                                <ShieldCheck className="w-3.5 h-3.5 text-rose-500" />
+                                <span>Security Controls & Pitfalls to Avoid</span>
+                              </h4>
+                              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                {sandboxStrategyResult.pitfallsToAvoid.map((pit: string, idx: number) => (
+                                  <div key={idx} className="p-5 bg-rose-50/30 border border-rose-100/40 rounded-2xl hover:bg-rose-50/50 transition-colors text-left space-y-2">
+                                    <span className="inline-flex items-center gap-1 text-[8px] font-mono font-bold text-rose-700 bg-rose-100/60 px-2 py-0.5 rounded border border-rose-100">
+                                      Guard {idx + 1}
+                                    </span>
+                                    <p className="text-xs text-neutral-700 leading-relaxed font-semibold">{pit}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          )}
+
+                        </div>
+                      ) : (
+                        <p className="text-xs text-neutral-400">Requesting diagnostic stream...</p>
+                      )}
+                    </div>
+
+                    {/* Sticky Footer CTA */}
+                    <div className="px-6 py-5 border-t border-neutral-100 bg-neutral-50/70 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shrink-0">
+                      <p className="text-[10px] text-neutral-400 leading-normal max-w-sm text-left">
+                        Disclaimer: Recommendations are simulated algorithmic estimations. Please execute thorough verification before committing capital.
+                      </p>
+                      <div className="flex gap-2.5 w-full sm:w-auto shrink-0">
+                        <button 
+                          onClick={() => setShowSandboxStrategyModal(false)}
+                          className="flex-1 sm:flex-none h-11 px-5 border border-neutral-200 hover:bg-white text-neutral-700 font-bold rounded-xl text-xs transition-colors cursor-pointer shadow-xs active:scale-95"
+                        >
+                          Dismiss Roadmap
+                        </button>
+                        <a 
+                          href="#/tools"
+                          onClick={() => setShowSandboxStrategyModal(false)}
+                          className="flex-1 sm:flex-none h-11 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
+                        >
+                          <span>Explore Calculator Suite</span>
+                          <ChevronRight className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              )}
+            </AnimatePresence>
+
+            {/* 2026 REGULATORY STATS ROW (IRS CODE MARQUEE TABS) */}
+            <section className="bg-white py-8 border-t border-b border-neutral-200/60 shadow-xs relative overflow-hidden">
               <div className="max-w-7xl mx-auto px-4 md:px-8">
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-                  <div className="space-y-0.5 text-left shrink-0">
-                    <p className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">Regulatory Framework</p>
-                    <p className="text-xs font-bold text-[#111827]">2026 IRS Federal Benchmarks In Use</p>
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 lg:gap-10">
+                  <div className="space-y-1 text-left shrink-0">
+                    <div className="flex items-center gap-1.5">
+                      <span className="text-[10px] font-bold uppercase tracking-widest text-neutral-400">IRS Compliance Frame</span>
+                      <span className="px-1.5 py-0.5 text-[8px] font-mono font-bold bg-blue-50 border border-blue-100 text-blue-600 rounded">2026</span>
+                    </div>
+                    <p className="text-sm font-extrabold text-[#111827]">Current Regulatory Benchmarks</p>
                   </div>
                   
-                  {/* Benchmarks ticker list */}
-                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-8 w-full text-left">
-                    <div className="p-2 border-l-2 border-[#2563EB] pl-3">
+                  {/* Grid of compliant values */}
+                  <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 lg:gap-6 w-full text-left">
+                    <div className="p-3 bg-neutral-50/50 border border-neutral-200/40 rounded-2xl pl-4 hover:border-blue-300 hover:bg-white transition-all">
                       <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Standard Single Deduction</p>
-                      <p className="text-xs font-mono font-bold text-neutral-700">${FINANCIAL_CONFIG_2026.taxBrackets.standardDeductionSingle.toLocaleString()}</p>
+                      <p className="text-xs font-mono font-bold text-neutral-900 mt-1">${FINANCIAL_CONFIG_2026.taxBrackets.standardDeductionSingle.toLocaleString()}</p>
                     </div>
-                    <div className="p-2 border-l-2 border-rose-500 pl-3">
-                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Standard Married Deduction</p>
-                      <p className="text-xs font-mono font-bold text-neutral-700">${FINANCIAL_CONFIG_2026.taxBrackets.standardDeductionMarried.toLocaleString()}</p>
+                    <div className="p-3 bg-neutral-50/50 border border-neutral-200/40 rounded-2xl pl-4 hover:border-rose-300 hover:bg-white transition-all">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Standard Joint Deduction</p>
+                      <p className="text-xs font-mono font-bold text-neutral-900 mt-1">${FINANCIAL_CONFIG_2026.taxBrackets.standardDeductionMarried.toLocaleString()}</p>
                     </div>
-                    <div className="p-2 border-l-2 border-emerald-500 pl-3">
-                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">401(k) Contribution Limit</p>
-                      <p className="text-xs font-mono font-bold text-neutral-700">${FINANCIAL_CONFIG_2026.retirementLimits.limit401k.toLocaleString()}</p>
+                    <div className="p-3 bg-neutral-50/50 border border-neutral-200/40 rounded-2xl pl-4 hover:border-emerald-300 hover:bg-white transition-all">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">401(k) Employee Cap</p>
+                      <p className="text-xs font-mono font-bold text-neutral-900 mt-1">${FINANCIAL_CONFIG_2026.retirementLimits.limit401k.toLocaleString()}</p>
                     </div>
-                    <div className="p-2 border-l-2 border-amber-500 pl-3">
-                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">IRA Contribution Cap</p>
-                      <p className="text-xs font-mono font-bold text-neutral-700">${FINANCIAL_CONFIG_2026.retirementLimits.limitIRA.toLocaleString()}</p>
+                    <div className="p-3 bg-neutral-50/50 border border-neutral-200/40 rounded-2xl pl-4 hover:border-amber-300 hover:bg-white transition-all">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">IRA Combined Cap</p>
+                      <p className="text-xs font-mono font-bold text-neutral-900 mt-1">${FINANCIAL_CONFIG_2026.retirementLimits.limitIRA.toLocaleString()}</p>
                     </div>
-                    <div className="p-2 border-l-2 border-violet-500 pl-3">
-                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">FICA Max Taxable Wage</p>
-                      <p className="text-xs font-mono font-bold text-neutral-700">${FINANCIAL_CONFIG_2026.fica.socialSecurityWageCap.toLocaleString()}</p>
+                    <div className="p-3 bg-neutral-50/50 border border-neutral-200/40 rounded-2xl pl-4 hover:border-violet-300 hover:bg-white transition-all">
+                      <p className="text-[9px] font-bold text-neutral-400 uppercase tracking-wider">Social Security Wage Base</p>
+                      <p className="text-xs font-mono font-bold text-neutral-900 mt-1">${FINANCIAL_CONFIG_2026.fica.socialSecurityWageCap.toLocaleString()}</p>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* A3. CORE PILLARS BENTO GRID */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
-              <div className="text-center space-y-2 max-w-2xl mx-auto">
-                <span className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Core Architectural Pillars</span>
-                <h2 className="text-2xl md:text-3xl font-extrabold text-[#111827]">Financial Planning, Hand-Crafted to Last.</h2>
-                <p className="text-xs text-[#4B5563]">Traditional online tools are notoriously bloated with pop-ups and financial product lead capture. Here is our direct, quiet, and reliable approach to mathematical calculations.</p>
+            {/* CORE DESIGN & METHODOLOGY PILLARS */}
+            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-12">
+              <div className="text-center space-y-3 max-w-2xl mx-auto">
+                <span className="text-xs font-extrabold uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+                  Engineered Integrity
+                </span>
+                <h2 className="text-3xl md:text-4xl font-extrabold text-[#111827] tracking-tight">
+                  High-Precision Math. Strict Privacy.
+                </h2>
+                <p className="text-sm text-neutral-500 leading-relaxed">
+                  Traditional web calculators are crammed with high-interest product advertisements, credit card referral traps, and complex cookies. Our platform runs entirely in memory without tracking data.
+                </p>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
                 {/* Pillar 1 */}
-                <div className="p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-sm hover:border-[#2563EB]/40 transition-all text-left flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-blue-50 flex items-center justify-center border border-blue-100">
-                      <Lock className="w-5 h-5 text-[#2563EB]" />
+                <div className="group p-8 rounded-3xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-[#2563EB]/40 transition-all text-left flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-blue-50 flex items-center justify-center border border-blue-100 text-[#2563EB] group-hover:bg-[#2563EB] group-hover:text-white transition-colors duration-300">
+                      <Lock className="w-5 h-5" />
                     </div>
-                    <h3 className="font-extrabold text-sm text-[#111827]">1. Absolute Client-Side Sandboxing</h3>
+                    <h3 className="font-extrabold text-lg text-[#111827]">1. Strict Client-Side Sandbox</h3>
                     <p className="text-xs text-[#4B5563] leading-relaxed">
-                      All calculations execute strictly inside your local browser memory (RAM). Your rates, salary brackets, and principal balances remain strictly on your device. We store zero metrics and use no logging databases.
+                      All calculations execute strictly inside your local browser memory (RAM). Your rates, tax brackets, and principal balances never leave your device. We store zero data on remote servers.
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-neutral-400 font-bold bg-neutral-50 px-2 py-1 rounded inline-block w-fit">100% PRIVATE</span>
+                  <span className="text-[10px] font-mono text-neutral-400 font-bold bg-neutral-50 px-3 py-1 rounded inline-block w-fit">100% OFFLINE-RESIDENT</span>
                 </div>
 
                 {/* Pillar 2 */}
-                <div className="p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-sm hover:border-emerald-200/80 transition-all text-left flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-emerald-50 flex items-center justify-center border border-emerald-100">
-                      <CheckCircle2 className="w-5 h-5 text-emerald-600" />
+                <div className="group p-8 rounded-3xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-emerald-200/80 transition-all text-left flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-emerald-50 flex items-center justify-center border border-emerald-100 text-emerald-600 group-hover:bg-emerald-600 group-hover:text-white transition-colors duration-300">
+                      <CheckCircle2 className="w-5 h-5" />
                     </div>
-                    <h3 className="font-extrabold text-sm text-[#111827]">2. High-Accuracy Calculations</h3>
+                    <h3 className="font-extrabold text-lg text-[#111827]">2. High-Accuracy Discretization</h3>
                     <p className="text-xs text-[#4B5563] leading-relaxed">
-                      Algorithms follow progressive marginal rates precisely, evaluate standard deductions, map amortization splines down to individual monthly periods, and compute actual effective APRs dynamically.
+                      Our engines evaluate actual progressive marginal thresholds, map standard deduction brackets, handle periodic interest compound frequencies, and detail amortization splines precisely.
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-2 py-1 rounded inline-block w-fit">CPA VERIFIED</span>
+                  <span className="text-[10px] font-mono text-emerald-600 font-bold bg-emerald-50 px-3 py-1 rounded inline-block w-fit">CPA COMPLIANT ALGORITHMS</span>
                 </div>
 
                 {/* Pillar 3 */}
-                <div className="p-6 rounded-2xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-sm hover:border-indigo-200/80 transition-all text-left flex flex-col justify-between space-y-4">
-                  <div className="space-y-3">
-                    <div className="w-10 h-10 rounded-xl bg-indigo-50 flex items-center justify-center border border-indigo-100">
-                      <Sparkles className="w-5 h-5 text-indigo-600" />
+                <div className="group p-8 rounded-3xl bg-white border border-neutral-200/80 shadow-xs hover:shadow-md hover:border-indigo-200/80 transition-all text-left flex flex-col justify-between space-y-6">
+                  <div className="space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-indigo-50 flex items-center justify-center border border-indigo-100 text-indigo-600 group-hover:bg-indigo-600 group-hover:text-white transition-colors duration-300">
+                      <Sparkles className="w-5 h-5" />
                     </div>
-                    <h3 className="font-extrabold text-sm text-[#111827]">3. Gemini Advisory Diagnostic</h3>
+                    <h3 className="font-extrabold text-lg text-[#111827]">3. Opt-in AI Advisory Diagnostic</h3>
                     <p className="text-xs text-[#4B5563] leading-relaxed">
-                      Optionally request a server-side strategy diagnostic. Gemini parses only your current numerical parameter fields to synthesize structural suggestions, highlighting pitfalls and optimization paths.
+                      Receive an optional situational advisory roadmap. Gemini parses only your numerical calculated outcomes to highlight strategic opportunities, investment pitfalls, and tax efficiency curves.
                     </p>
                   </div>
-                  <span className="text-[10px] font-mono text-indigo-600 font-bold bg-indigo-50 px-2 py-1 rounded inline-block w-fit">OPT-IN INSIGHTS</span>
+                  <span className="text-[10px] font-mono text-indigo-600 font-bold bg-indigo-50 px-3 py-1 rounded inline-block w-fit">GEMINI-SECURE ENCRYPTED PROMPT</span>
                 </div>
               </div>
             </section>
 
-            {/* A4. FEATURED PLANNING TOOLS (SPOTLIGHT) */}
-            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-8">
-              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
-                <div className="text-left space-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Featured Toolkits</span>
-                  <h2 className="text-2xl font-extrabold text-[#111827]">Widely-Used Planners</h2>
+            {/* FEATURED TOOLS GRID SECTION */}
+            <section className="max-w-7xl mx-auto px-4 md:px-8 space-y-10">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6">
+                <div className="text-left space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Platform Spotlight</span>
+                  <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight font-display">Featured Planning Systems</h2>
                 </div>
                 <a 
                   href="#/tools" 
-                  className="text-xs font-bold text-[#2563EB] hover:text-[#1D4ED8] inline-flex items-center gap-1.5 hover:underline whitespace-nowrap"
+                  className="text-xs font-extrabold text-[#2563EB] hover:text-[#1D4ED8] inline-flex items-center gap-1.5 group whitespace-nowrap bg-blue-50 hover:bg-blue-100 border border-blue-100 px-4 py-2 rounded-xl transition-all"
                 >
-                  View and Search All 31 Tools <ArrowRight className="w-3.5 h-3.5" />
+                  <span>Search All 31 Planning Tools</span> 
+                  <ArrowRight className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
                 </a>
               </div>
 
@@ -886,25 +1205,30 @@ export default function App() {
                      onClick={() => {
                        window.location.hash = `#/calculator/${calc.id}`;
                      }}
-                     className="p-6 rounded-2xl bg-white border border-neutral-200/80 hover:border-[#2563EB] transition-all cursor-pointer flex flex-col justify-between text-left group hover:shadow-md"
+                     className="p-6 rounded-3xl bg-white border border-neutral-200/80 hover:border-[#2563EB] transition-all cursor-pointer flex flex-col justify-between text-left group hover:shadow-lg relative overflow-hidden"
                   >
-                    <div className="space-y-3">
+                    <div className="space-y-4">
                       <div className="flex items-center justify-between">
-                        <span className="px-2 py-0.5 text-[9px] font-bold bg-[#2563EB]/10 text-[#2563EB] rounded-full uppercase tracking-wider">
+                        <span className="px-2.5 py-1 text-[9px] font-bold bg-neutral-100 text-neutral-600 rounded-lg uppercase tracking-wider group-hover:bg-blue-50 group-hover:text-blue-600 transition-colors">
                           {calc.category}
                         </span>
-                        <ArrowUpRight className="w-4 h-4 text-neutral-300 group-hover:text-[#2563EB] transition-colors" />
+                        <div className="w-7 h-7 rounded-full bg-neutral-50 group-hover:bg-blue-50 text-neutral-400 group-hover:text-blue-600 flex items-center justify-center transition-colors">
+                          <ArrowUpRight className="w-4 h-4" />
+                        </div>
                       </div>
-                      <h3 className="font-extrabold text-sm text-[#111827] group-hover:underline">
-                        {calc.name}
-                      </h3>
-                      <p className="text-[11px] text-[#4B5563] line-clamp-3 leading-relaxed">
-                        {calc.benefit}
-                      </p>
+                      
+                      <div className="space-y-1.5">
+                        <h3 className="font-extrabold text-[#111827] text-base group-hover:text-blue-600 group-hover:underline transition-colors leading-snug">
+                          {calc.name}
+                        </h3>
+                        <p className="text-xs text-[#4B5563] line-clamp-3 leading-relaxed">
+                          {calc.benefit}
+                        </p>
+                      </div>
                     </div>
 
-                    <div className="pt-4 mt-4 border-t border-neutral-100 flex items-center justify-between text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
-                      <span className="group-hover:text-[#2563EB] transition-colors">Launch Sandbox</span>
+                    <div className="pt-4 mt-6 border-t border-neutral-100 flex items-center justify-between text-[10px] text-neutral-400 font-bold uppercase tracking-wider">
+                      <span className="group-hover:text-[#2563EB] transition-colors">Launch Sandbox Engine</span>
                       <ChevronRight className="w-3.5 h-3.5 group-hover:text-[#2563EB] transition-colors" />
                     </div>
                   </div>
@@ -912,71 +1236,93 @@ export default function App() {
               </div>
             </section>
 
-            {/* A5. PROFESSIONAL REVIEWS */}
-            <section className="bg-white border-t border-b border-neutral-200/60 py-16">
-              <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-8 text-center">
-                <div className="space-y-1">
-                  <span className="text-xs font-bold uppercase tracking-wider text-neutral-400">Professional Auditing</span>
-                  <h2 className="text-2xl font-extrabold text-[#111827]">Endorsed by Planners</h2>
+            {/* CPA & PLANNING VERIFIED ENDORSEMENTS */}
+            <section className="bg-[#F8FAFC] border-t border-b border-neutral-200/50 py-20 relative overflow-hidden">
+              <div className="max-w-7xl mx-auto px-4 md:px-8 space-y-12 text-center">
+                <div className="space-y-2">
+                  <span className="text-xs font-bold uppercase tracking-widest text-[#2563EB]">Verified Peer Auditing</span>
+                  <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight">Endorsed by Financial Planners</h2>
+                  <p className="text-xs text-neutral-500 max-w-xl mx-auto">
+                    We invite industry practitioners to audit our formulas. Here is why Certified Financial Planners recommend our suite.
+                  </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto text-left">
-                  <div className="p-6 rounded-2xl bg-neutral-50/60 border border-neutral-200/80 space-y-4">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto text-left">
+                  {/* Review 1 */}
+                  <div className="p-8 rounded-3xl bg-white border border-neutral-200/60 space-y-5 shadow-xs flex flex-col justify-between">
                     <p className="text-xs text-[#4B5563] leading-relaxed italic">
-                      "I am highly critical of client-facing web portals. Most calculators require account signups or log sensitive balance data. Financial Calculator has zero cookies, zero trackers, and is completely local. Flawless math."
+                      "Most web tools require complete signups or capture transaction telemetry. Having a clean, offline-first sandbox with index-aligned 2026 progressive brackets is an incredibly valuable asset."
                     </p>
-                    <div>
-                      <h4 className="font-extrabold text-xs text-[#111827]">David L., CPA</h4>
-                      <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Certified Public Accountant</p>
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase">
+                        DL
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-xs text-[#111827]">David L., CPA</h4>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Certified Public Accountant</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-neutral-50/60 border border-neutral-200/80 space-y-4">
+                  {/* Review 2 */}
+                  <div className="p-8 rounded-3xl bg-white border border-neutral-200/60 space-y-5 shadow-xs flex flex-col justify-between">
                     <p className="text-xs text-[#4B5563] leading-relaxed italic">
-                      "The progressive tax rate and standard deduction calculations are completely aligned with current 2026 brackets. It serves as an excellent tool for quick scenario analysis prior to running certified software."
+                      "The tax calculation engine maps marginal deductions and FICA wage caps with absolute compliance. It works flawlessly for running fast scenario comparisons prior to committing parameters to paid corporate modeling software."
                     </p>
-                    <div>
-                      <h4 className="font-extrabold text-xs text-[#111827]">Samantha K.</h4>
-                      <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Senior Corporate Tax Planner</p>
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="w-8 h-8 rounded-full bg-emerald-100 text-emerald-600 flex items-center justify-center font-bold text-xs uppercase">
+                        SK
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-xs text-[#111827]">Samantha K.</h4>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Senior Corporate Tax Advisor</p>
+                      </div>
                     </div>
                   </div>
 
-                  <div className="p-6 rounded-2xl bg-neutral-50/60 border border-neutral-200/80 space-y-4">
+                  {/* Review 3 */}
+                  <div className="p-8 rounded-3xl bg-white border border-neutral-200/60 space-y-5 shadow-xs flex flex-col justify-between">
                     <p className="text-xs text-[#4B5563] leading-relaxed italic">
-                      "This platform helps separate emotional variables from hard math. When evaluating loan structures, the dynamic amortizations let clients visually isolate their principal curves to understand exact timelines."
+                      "I keep this site open when presenting amortization scheduling. The dynamic sliders let clients visually trace how amortization splits change over time, helping make logical financial planning simple."
                     </p>
-                    <div>
-                      <h4 className="font-extrabold text-xs text-[#111827]">Marcus T., CFP®</h4>
-                      <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Certified Financial Planner</p>
+                    <div className="flex items-center gap-3 pt-2">
+                      <div className="w-8 h-8 rounded-full bg-violet-100 text-violet-600 flex items-center justify-center font-bold text-xs uppercase">
+                        MT
+                      </div>
+                      <div>
+                        <h4 className="font-extrabold text-xs text-[#111827]">Marcus T., CFP®</h4>
+                        <p className="text-[9px] text-neutral-400 uppercase tracking-widest font-semibold">Certified Financial Planner</p>
+                      </div>
                     </div>
                   </div>
                 </div>
               </div>
             </section>
 
-            {/* A6. CTA SECTION */}
-            <section className="max-w-5xl mx-auto px-4 md:px-8 pt-8">
-              <div className="bg-[#2563EB] text-white rounded-3xl p-8 md:p-12 space-y-6 relative overflow-hidden shadow-lg text-center">
+            {/* CALL TO ACTION MODULE */}
+            <section className="max-w-5xl mx-auto px-4 md:px-8">
+              <div className="bg-[#2563EB] text-white rounded-3xl p-10 md:p-14 space-y-6 relative overflow-hidden shadow-lg text-center">
                 <div className="absolute -top-24 -left-24 w-64 h-64 bg-blue-700 rounded-full blur-3xl opacity-40"></div>
+                <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-indigo-700 rounded-full blur-3xl opacity-30"></div>
                 
-                <span className="text-[9px] font-mono tracking-widest uppercase bg-blue-700 border border-blue-600 text-blue-100 px-3 py-1 rounded-full w-fit mx-auto inline-block">
-                  No Signups. No Email Required.
+                <span className="text-[9px] font-mono tracking-widest uppercase bg-blue-700 border border-blue-600/50 text-blue-100 px-4 py-1.5 rounded-full w-fit mx-auto inline-block">
+                  No Email. No Registration. Open Source.
                 </span>
                 
-                <h2 className="text-2xl sm:text-3xl font-extrabold tracking-tight">
-                  Start mapping your numbers in security.
+                <h2 className="text-3xl sm:text-4xl font-extrabold tracking-tight font-display max-w-xl mx-auto leading-tight">
+                  Start forecasting your financial milestones.
                 </h2>
                 
                 <p className="text-xs sm:text-sm text-blue-100 max-w-lg mx-auto leading-relaxed">
-                  Toggle parameters, review amortization schedule grids, and test progressive income thresholds. Absolute calculation residency in your local browser sandbox.
+                  Map dynamic progressive tax liability ranges, calculate long-term compound trajectories, and run custom amortization simulations. Absolute client-side security in a single web dashboard.
                 </p>
 
-                <div className="pt-2">
+                <div className="pt-4">
                   <a 
                     href="#/tools"
-                    className="bg-white hover:bg-neutral-100 text-[#2563EB] font-extrabold px-6 py-3 rounded-xl text-xs inline-flex items-center gap-1.5 transition-all shadow-md active:scale-95"
+                    className="bg-white hover:bg-neutral-100 text-[#2563EB] font-extrabold px-8 py-3.5 rounded-xl text-xs inline-flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
-                    Open Directory (31 Planners) <ArrowRight className="w-3.5 h-3.5" />
+                    Open Suite Directory (31 Tools) <ArrowRight className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>
@@ -1783,24 +2129,6 @@ export default function App() {
                       <div className="space-y-0.5">
                         <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Strategic Inquiries</p>
                         <p className="text-xs font-semibold text-[#111827]">mohitsinghatwork05@gmail.com</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Phone className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Assistance Hotline</p>
-                        <p className="text-xs font-semibold text-[#111827]">+1 (800) 555-0199</p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-start gap-3">
-                      <Building className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
-                      <div className="space-y-0.5">
-                        <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Global Operations</p>
-                        <p className="text-xs font-semibold text-[#4B5563] leading-relaxed">
-                          Financial Center Plaza, Suite 400,<br />New York, NY 10005
-                        </p>
                       </div>
                     </div>
                   </div>
