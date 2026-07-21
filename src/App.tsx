@@ -8,6 +8,7 @@ import {
   AlertCircle,
   X,
   ChevronRight,
+  ChevronDown,
   Info,
   Award,
   CircleDollarSign,
@@ -44,6 +45,75 @@ import { calculateResultsEngine } from "./calculatorEngine";
 import { getSEOInfo } from "./seoData";
 
 type ViewState = "home" | "tools" | "calculator" | "about" | "contact" | "policies";
+
+function HomepageFAQs() {
+  const [openIndex, setOpenIndex] = useState<number | null>(0);
+
+  const faqs = [
+    {
+      q: "What is included in the free Financial Calculator Suite?",
+      a: "Our suite includes 31 comprehensive calculators categorized into mortgage & loan planners, investment & compound interest estimators, 401(k) & Roth IRA retirement planners, federal income tax estimators, and corporate ROI metrics. Every calculation is performed with absolute precision."
+    },
+    {
+      q: "How does the mortgage calculator estimate monthly payments?",
+      a: "The mortgage payment calculator uses the standard monthly amortization formula to determine the principal and interest breakdown. It also integrates property taxes, homeowners insurance, HOA dues, and PMI rules to give you a complete picture of your home buying capability."
+    },
+    {
+      q: "Are my financial inputs private and secure?",
+      a: "Absolutely. Our platform runs 100% client-side in your active browser session. None of your income details, home loan calculations, or retirement goals are ever transmitted to or stored on our servers. There are no tracking scripts, ads, or sign-ups required."
+    },
+    {
+      q: "Is the federal income tax calculator aligned with recent IRS rules?",
+      a: "Yes, our federal income tax estimator maps progressive tax brackets, standard deductions, FICA wage caps, and child tax credits based on the standard 2026 IRS codes to ensure high mathematical accuracy."
+    },
+    {
+      q: "How does the compound interest calculator help project future growth?",
+      a: "The compound interest calculator maps initial principal values with periodic contributions and growth rates. You can adjust the compound frequency (daily, monthly, or annually) and see a complete visual breakdown of your saved principal versus compounded earnings."
+    }
+  ];
+
+  return (
+    <section className="max-w-4xl mx-auto px-4 sm:px-6 md:px-8 space-y-8 my-12 sm:my-16">
+      <div className="text-center space-y-3">
+        <span className="text-xs font-bold uppercase tracking-widest text-[#2563EB] bg-blue-50 px-3 py-1 rounded-full border border-blue-100">
+          Learn & Understand
+        </span>
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-[#111827] tracking-tight font-display">
+          Frequently Asked Questions
+        </h2>
+        <p className="text-xs sm:text-sm text-neutral-500 max-w-lg mx-auto leading-relaxed">
+          Get transparent answers on our high-precision formula compliance, client-side safety models, and suite capabilities.
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {faqs.map((faq, idx) => {
+          const isOpen = openIndex === idx;
+          return (
+            <div 
+              key={idx} 
+              className="bg-white border border-neutral-200/80 rounded-2xl overflow-hidden transition-all duration-200 text-left shadow-xs hover:border-neutral-300"
+            >
+              <button
+                onClick={() => setOpenIndex(isOpen ? null : idx)}
+                className="w-full px-5 sm:px-6 py-4 flex items-center justify-between text-left font-bold text-xs sm:text-sm text-neutral-900 hover:text-[#2563EB] transition-colors focus:outline-none"
+              >
+                <span>{faq.q}</span>
+                <ChevronDown className={`w-4 h-4 text-neutral-400 transition-transform duration-200 shrink-0 ml-4 ${isOpen ? "rotate-180 text-[#2563EB]" : ""}`} />
+              </button>
+              
+              {isOpen && (
+                <div className="px-5 sm:px-6 pb-4 pt-1 text-xs text-neutral-600 leading-relaxed border-t border-neutral-50 bg-neutral-50/30 animate-fadeIn">
+                  {faq.a}
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+    </section>
+  );
+}
 
 export default function App() {
   const [currentView, setCurrentView] = useState<ViewState>("home");
@@ -176,8 +246,8 @@ export default function App() {
     const siteBaseUrl = window.location.origin;
 
     if (currentView === "home") {
-      title = "Financial Calculator Suite | Premium USD Investment & Tax Planners";
-      desc = "Run highly accurate progressive US income tax calculations, 15/30-year fixed mortgage schedules, Roth IRA conversions, and compound interest models in USD, strictly locally.";
+      title = "Financial Calculator Suite | Free Mortgage, Tax, & Investment Calculators";
+      desc = "Secure, ad-free financial calculators including 15/30-year mortgages, progressive US income tax brackets, Roth IRA growth, and compound interest. 100% private.";
       schemaList.push({
         "@context": "https://schema.org",
         "@type": "WebApplication",
@@ -190,7 +260,67 @@ export default function App() {
           "@type": "Offer",
           "price": "0",
           "priceCurrency": "USD"
-        }
+        },
+        "hasPart": CALCULATORS.map(calc => ({
+          "@type": "WebApplication",
+          "name": calc.name,
+          "url": `${siteBaseUrl}/calculator/${calc.id}`,
+          "description": calc.description,
+          "applicationCategory": "FinancialApplication",
+          "operatingSystem": "All",
+          "offers": {
+            "@type": "Offer",
+            "price": "0",
+            "priceCurrency": "USD"
+          }
+        }))
+      });
+      // Add FAQPage Schema for Homepage
+      schemaList.push({
+        "@context": "https://schema.org",
+        "@type": "FAQPage",
+        "mainEntity": [
+          {
+            "@type": "Question",
+            "name": "What is included in the free Financial Calculator Suite?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Our suite includes 31 comprehensive calculators categorized into mortgage & loan planners, investment & compound interest estimators, 401(k) & Roth IRA retirement planners, federal income tax estimators, and corporate ROI metrics. Every calculation is performed with absolute precision."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the mortgage calculator estimate monthly payments?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The mortgage payment calculator uses the standard monthly amortization formula to determine the principal and interest breakdown. It also integrates property taxes, homeowners insurance, HOA dues, and PMI rules to give you a complete picture of your home buying capability."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Are my financial inputs private and secure?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Absolutely. Our platform runs 100% client-side in your active browser session. None of your income details, home loan calculations, or retirement goals are ever transmitted to or stored on our servers. There are no tracking scripts, ads, or sign-ups required."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "Is the federal income tax calculator aligned with recent IRS rules?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "Yes, our federal income tax estimator maps progressive tax brackets, standard deductions, FICA wage caps, and child tax credits based on the standard 2026 IRS codes to ensure high mathematical accuracy."
+            }
+          },
+          {
+            "@type": "Question",
+            "name": "How does the compound interest calculator help project future growth?",
+            "acceptedAnswer": {
+              "@type": "Answer",
+              "text": "The compound interest calculator maps initial principal values with periodic contributions and growth rates. You can adjust the compound frequency (daily, monthly, or annually) and see a complete visual breakdown of your saved principal versus compounded earnings."
+            }
+          }
+        ]
       });
     } else if (currentView === "tools") {
       title = "Financial Directory | 31 CPA-Validated Calculators (USD)";
@@ -313,6 +443,22 @@ export default function App() {
     }
     metaDesc.setAttribute("content", desc);
 
+    // Apply keywords meta tag (extremely beneficial for on-page SEO crawlers)
+    let metaKeywords = document.querySelector('meta[name="keywords"]');
+    if (!metaKeywords) {
+      metaKeywords = document.createElement("meta");
+      metaKeywords.setAttribute("name", "keywords");
+      document.head.appendChild(metaKeywords);
+    }
+    let keywordsContent = "";
+    if (currentView === "calculator" && activeCalc) {
+      const activeSeo = getSEOInfo(activeCalc.id, activeCalc.name, activeCalc.category, activeCalc.benefit, activeCalc.description, activeCalc.formula);
+      keywordsContent = [activeSeo.primaryKeyword, ...activeSeo.secondaryKeywords].join(", ");
+    } else {
+      keywordsContent = "financial calculator, mortgage calculator, tax calculator, retirement planner, compound interest calculator, amortization schedule, personal loan calculator, investment growth calculator";
+    }
+    metaKeywords.setAttribute("content", keywordsContent);
+
     // Apply self-referencing canonical tag (prevents duplicate content issues)
     let canonicalLink = document.querySelector('link[rel="canonical"]');
     if (!canonicalLink) {
@@ -323,6 +469,27 @@ export default function App() {
     const cleanBaseUrl = siteBaseUrl.replace(/\/+$/, "");
     const currentCanonicalUrl = cleanBaseUrl + (currentView === "home" ? "/" : `/${currentView === "calculator" ? `calculator/${activeCalc.id}` : currentView}`);
     canonicalLink.setAttribute("href", currentCanonicalUrl);
+
+    // Apply OpenGraph & Twitter tags for Deep Answer Engine Optimization (AEO)
+    const setMetaTag = (propertyOrName: string, content: string, isProperty: boolean = false) => {
+      const selector = isProperty ? `meta[property="${propertyOrName}"]` : `meta[name="${propertyOrName}"]`;
+      let meta = document.querySelector(selector);
+      if (!meta) {
+        meta = document.createElement("meta");
+        meta.setAttribute(isProperty ? "property" : "name", propertyOrName);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute("content", content);
+    };
+
+    setMetaTag("og:title", title, true);
+    setMetaTag("og:description", desc, true);
+    setMetaTag("og:url", currentCanonicalUrl, true);
+    setMetaTag("og:type", "website", true);
+    setMetaTag("og:site_name", "Financial Calculator Suite", true);
+    setMetaTag("twitter:card", "summary_large_image");
+    setMetaTag("twitter:title", title);
+    setMetaTag("twitter:description", desc);
 
     // Apply JSON-LD structured data script
     const existingScript = document.getElementById("seo-jsonld");
@@ -652,7 +819,7 @@ export default function App() {
               <div className="relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
                 
                 {/* Left Column: Premium Branding & Headline */}
-                <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left">
+                <div className="lg:col-span-7 space-y-6 sm:space-y-8 text-left flex flex-col justify-center">
                   <div className="inline-flex items-center gap-2 bg-white border border-blue-100 px-3 sm:px-4 py-1 sm:py-1.5 rounded-full">
                     <span className="w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full bg-emerald-500 animate-pulse"></span>
                     <span className="text-[10px] sm:text-xs font-semibold text-blue-800 tracking-tight">
@@ -721,7 +888,7 @@ export default function App() {
                 </div>
 
                 {/* Right Column: Live Tactile Compound Sandbox (Completely interactive) */}
-                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-800/80 rounded-2xl md:rounded-3xl p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between space-y-6 max-w-2xl mx-auto lg:max-w-none w-full">
+                <div className="lg:col-span-5 bg-slate-950 text-white border border-slate-800/80 rounded-2xl sm:rounded-3xl p-5 sm:p-6 md:p-8 relative overflow-hidden flex flex-col justify-between max-w-2xl mx-auto lg:max-w-none w-full lg:h-[580px] xl:h-[600px] min-h-[500px] shadow-2xl">
                   <div className="absolute top-0 right-0 w-32 h-32 bg-blue-500/10 rounded-full blur-2xl -z-10"></div>
                   
                   {/* Interactive Header */}
@@ -901,7 +1068,7 @@ export default function App() {
             {/* FLOATING SUB-ROUTINE AI STRATEGY OVERLAY MODAL */}
             <AnimatePresence>
               {showSandboxStrategyModal && (
-                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 overflow-y-auto">
+                <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 md:p-8 lg:p-10">
                   
                   {/* Backdrop blur with high-density premium tint */}
                   <motion.div 
@@ -909,15 +1076,15 @@ export default function App() {
                     animate={{ opacity: 1 }}
                     exit={{ opacity: 0 }}
                     onClick={() => setShowSandboxStrategyModal(false)}
-                    className="fixed inset-0 bg-neutral-950/70 backdrop-blur-xl z-0"
+                    className="fixed inset-0 bg-neutral-950/75 backdrop-blur-md z-0"
                   ></motion.div>
 
                   {/* Modal Card content */}
                   <motion.div 
-                    initial={{ opacity: 0, scale: 0.96, y: 20 }}
+                    initial={{ opacity: 0, scale: 0.96, y: 15 }}
                     animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.96, y: 20 }}
-                    className="relative bg-white border border-neutral-100 rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl z-10 my-8 max-h-[90vh] flex flex-col"
+                    exit={{ opacity: 0, scale: 0.96, y: 15 }}
+                    className="relative bg-white border border-neutral-200 rounded-2xl sm:rounded-3xl w-full max-w-2xl overflow-hidden shadow-2xl z-10 flex flex-col h-[90dvh] sm:h-[85vh] lg:h-[780px] max-h-[90dvh] sm:max-h-[85vh] lg:max-h-[780px]"
                   >
                     {/* Header bar */}
                     <div className="flex items-center justify-between px-6 py-5 border-b border-neutral-100 bg-linear-to-b from-neutral-50/50 to-white sticky top-0 z-10 shrink-0">
@@ -1337,6 +1504,9 @@ export default function App() {
                 </div>
               </div>
             </section>
+
+            {/* FAQ SECTION */}
+            <HomepageFAQs />
 
             {/* CALL TO ACTION MODULE */}
             <section className="max-w-5xl mx-auto px-4 md:px-8">
