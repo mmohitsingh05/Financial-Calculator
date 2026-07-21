@@ -91,18 +91,24 @@ export default function App() {
   const activeCalc = CALCULATORS.find(c => c.id === activeCalcId) || CALCULATORS[0];
   const seoInfo = getSEOInfo(activeCalc.id, activeCalc.name, activeCalc.category, activeCalc.benefit, activeCalc.description, activeCalc.formula);
 
-  // Hash Routing Logic: Sync State with URL Hashes
+  // Navigate Helper Function
+  const navigateTo = (path: string) => {
+    window.history.pushState(null, "", path);
+    window.dispatchEvent(new Event("localnavigation"));
+  };
+
+  // HTML5 Path Routing Logic: Sync State with URL Pathnames
   useEffect(() => {
-    const handleHashChange = () => {
-      const hash = window.location.hash;
+    const handlePathChange = () => {
+      const path = window.location.pathname;
       setMobileMenuOpen(false);
 
-      if (hash === "" || hash === "#" || hash === "#/home") {
+      if (path === "/" || path === "/home" || path === "") {
         setCurrentView("home");
-      } else if (hash === "#/tools") {
+      } else if (path === "/tools") {
         setCurrentView("tools");
-      } else if (hash.startsWith("#/calculator/")) {
-        const calcId = hash.replace("#/calculator/", "");
+      } else if (path.startsWith("/calculator/")) {
+        const calcId = path.replace("/calculator/", "");
         const exists = CALCULATORS.some(c => c.id === calcId);
         if (exists) {
           setActiveCalcId(calcId);
@@ -110,13 +116,21 @@ export default function App() {
         } else {
           setCurrentView("home");
         }
-      } else if (hash === "#/about") {
+      } else if (path === "/about") {
         setCurrentView("about");
-      } else if (hash === "#/contact") {
+      } else if (path === "/contact") {
         setCurrentView("contact");
-      } else if (hash === "#/policies") {
+      } else if (path === "/policies") {
         setCurrentView("policies");
       } else {
+        // Fallback or handle initial deployment hash compatibility gracefully
+        const hash = window.location.hash;
+        if (hash.startsWith("#/")) {
+          const newPath = hash.replace("#", "");
+          window.history.replaceState(null, "", newPath);
+          setTimeout(handlePathChange, 0);
+          return;
+        }
         setCurrentView("home");
       }
 
@@ -124,9 +138,33 @@ export default function App() {
       window.scrollTo({ top: 0, behavior: "smooth" });
     };
 
-    handleHashChange(); // Sync initially on mount
-    window.addEventListener("hashchange", handleHashChange);
-    return () => window.removeEventListener("hashchange", handleHashChange);
+    handlePathChange(); // Sync initially on mount
+    window.addEventListener("popstate", handlePathChange);
+    window.addEventListener("localnavigation", handlePathChange);
+    
+    // Global relative link click interceptor for clean internal links
+    const handleLinkClick = (e: MouseEvent) => {
+      let target = e.target as HTMLElement | null;
+      while (target && target.tagName !== "A") {
+        target = target.parentElement;
+      }
+      if (!target) return;
+      
+      const href = target.getAttribute("href");
+      if (href && href.startsWith("/") && !href.startsWith("//")) {
+        e.preventDefault();
+        window.history.pushState(null, "", href);
+        handlePathChange();
+      }
+    };
+    
+    document.addEventListener("click", handleLinkClick);
+
+    return () => {
+      window.removeEventListener("popstate", handlePathChange);
+      window.removeEventListener("localnavigation", handlePathChange);
+      document.removeEventListener("click", handleLinkClick);
+    };
   }, []);
 
   // On-page SEO: Dynamic document title, meta descriptions, and JSON-LD Schema injection
@@ -135,7 +173,7 @@ export default function App() {
     let desc = "Free, ad-free financial planners for US households. Amortization schedules, progress trackers, and Roth IRA converters. No tracking, 100% private.";
     let schemaList: any[] = [];
 
-    const siteBaseUrl = window.location.origin + window.location.pathname;
+    const siteBaseUrl = window.location.origin;
 
     if (currentView === "home") {
       title = "Financial Calculator Suite | Premium USD Investment & Tax Planners";
@@ -161,7 +199,7 @@ export default function App() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Financial Directory - 31 CPA-Validated Calculators",
-        "url": siteBaseUrl + "#/tools",
+        "url": siteBaseUrl + "/tools",
         "description": desc
       });
     } else if (currentView === "about") {
@@ -171,7 +209,7 @@ export default function App() {
         "@context": "https://schema.org",
         "@type": "AboutPage",
         "name": "About Our Mission",
-        "url": siteBaseUrl + "#/about",
+        "url": siteBaseUrl + "/about",
         "description": desc
       });
     } else if (currentView === "contact") {
@@ -181,7 +219,7 @@ export default function App() {
         "@context": "https://schema.org",
         "@type": "ContactPage",
         "name": "Secure Contact Support",
-        "url": siteBaseUrl + "#/contact",
+        "url": siteBaseUrl + "/contact",
         "description": desc
       });
     } else if (currentView === "policies") {
@@ -191,7 +229,7 @@ export default function App() {
         "@context": "https://schema.org",
         "@type": "WebPage",
         "name": "Privacy Policy & Terms of Service",
-        "url": siteBaseUrl + "#/policies",
+        "url": siteBaseUrl + "/policies",
         "description": desc
       });
     } else if (currentView === "calculator" && activeCalc) {
@@ -229,19 +267,19 @@ export default function App() {
             "@type": "ListItem",
             "position": 2,
             "name": "Calculators",
-            "item": siteBaseUrl + "#/tools"
+            "item": siteBaseUrl + "/tools"
           },
           {
             "@type": "ListItem",
             "position": 3,
             "name": activeCalc.category,
-            "item": siteBaseUrl + "#/tools"
+            "item": siteBaseUrl + "/tools"
           },
           {
             "@type": "ListItem",
             "position": 4,
             "name": activeCalc.name,
-            "item": siteBaseUrl + `#/calculator/${activeCalc.id}`
+            "item": siteBaseUrl + `/calculator/${activeCalc.id}`
           }
         ]
       });
@@ -282,7 +320,8 @@ export default function App() {
       canonicalLink.setAttribute("rel", "canonical");
       document.head.appendChild(canonicalLink);
     }
-    const currentCanonicalUrl = siteBaseUrl + (currentView === "home" ? "" : `#/${currentView === "calculator" ? `calculator/${activeCalc.id}` : currentView}`);
+    const cleanBaseUrl = siteBaseUrl.replace(/\/+$/, "");
+    const currentCanonicalUrl = cleanBaseUrl + (currentView === "home" ? "/" : `/${currentView === "calculator" ? `calculator/${activeCalc.id}` : currentView}`);
     canonicalLink.setAttribute("href", currentCanonicalUrl);
 
     // Apply JSON-LD structured data script
@@ -427,7 +466,7 @@ export default function App() {
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
     if (query && currentView !== "tools") {
-      window.location.hash = "#/tools";
+      navigateTo("/tools");
     }
   };
 
@@ -481,8 +520,8 @@ export default function App() {
       
       {/* 1. Header Navigation Bar */}
       <nav className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-neutral-200/80 h-16 px-4 md:px-8 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <a href="#/home" className="flex items-center gap-2 group">
+         <div className="flex items-center gap-8">
+          <a href="/" className="flex items-center gap-2 group">
             <span className="w-8 h-8 rounded-lg bg-[#2563EB] text-white flex items-center justify-center font-bold text-xs tracking-tighter group-hover:bg-[#1D4ED8] transition-all shadow-sm">
               FC
             </span>
@@ -494,31 +533,31 @@ export default function App() {
           {/* Desktop Links */}
           <div className="hidden lg:flex items-center gap-6 text-xs font-semibold text-neutral-500">
             <a 
-              href="#/home" 
+              href="/" 
               className={`hover:text-[#2563EB] transition-colors ${currentView === "home" ? "text-[#2563EB] font-bold" : ""}`}
             >
               Home
             </a>
             <a 
-              href="#/tools" 
+              href="/tools" 
               className={`hover:text-[#2563EB] transition-colors ${currentView === "tools" || currentView === "calculator" ? "text-[#2563EB] font-bold" : ""}`}
             >
               All Calculators
             </a>
             <a 
-              href="#/about" 
+              href="/about" 
               className={`hover:text-[#2563EB] transition-colors ${currentView === "about" ? "text-[#2563EB] font-bold" : ""}`}
             >
               About Us
             </a>
             <a 
-              href="#/contact" 
+              href="/contact" 
               className={`hover:text-[#2563EB] transition-colors ${currentView === "contact" ? "text-[#2563EB] font-bold" : ""}`}
             >
               Contact
             </a>
             <a 
-              href="#/policies" 
+              href="/policies" 
               className={`hover:text-[#2563EB] transition-colors ${currentView === "policies" ? "text-[#2563EB] font-bold" : ""}`}
             >
               Policies
@@ -540,7 +579,7 @@ export default function App() {
           </div>
           
           <a 
-            href="#/tools" 
+            href="/tools" 
             className="hidden sm:inline-flex bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-semibold rounded-full h-9 px-4 text-xs items-center justify-center transition-all shadow-sm"
           >
             Get Started
@@ -576,11 +615,11 @@ export default function App() {
                   className="w-full h-9 bg-neutral-50 border border-neutral-200 rounded-lg pl-9 pr-4 text-xs focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none transition-all"
                 />
               </div>
-              <a href="#/home" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "home" ? "text-[#2563EB] font-bold" : ""}`}>Home</a>
-              <a href="#/tools" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "tools" ? "text-[#2563EB] font-bold" : ""}`}>All 31 Calculators</a>
-              <a href="#/about" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "about" ? "text-[#2563EB] font-bold" : ""}`}>About Us</a>
-              <a href="#/contact" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "contact" ? "text-[#2563EB] font-bold" : ""}`}>Contact Us</a>
-              <a href="#/policies" className={`py-2 px-1 ${currentView === "policies" ? "text-[#2563EB] font-bold" : ""}`}>Policies & Disclaimer</a>
+              <a href="/" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "home" ? "text-[#2563EB] font-bold" : ""}`}>Home</a>
+              <a href="/tools" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "tools" ? "text-[#2563EB] font-bold" : ""}`}>All 31 Calculators</a>
+              <a href="/about" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "about" ? "text-[#2563EB] font-bold" : ""}`}>About Us</a>
+              <a href="/contact" className={`py-2 px-1 border-b border-neutral-50 ${currentView === "contact" ? "text-[#2563EB] font-bold" : ""}`}>Contact Us</a>
+              <a href="/policies" className={`py-2 px-1 ${currentView === "policies" ? "text-[#2563EB] font-bold" : ""}`}>Policies & Disclaimer</a>
             </div>
           </motion.div>
         )}
@@ -634,13 +673,13 @@ export default function App() {
 
                   <div className="flex flex-wrap gap-4 pt-2">
                     <a 
-                      href="#/tools"
+                      href="/tools"
                       className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-extrabold rounded-xl h-12 px-8 text-xs inline-flex items-center justify-center gap-2 transition-all shadow-md hover:shadow-lg active:scale-95"
                     >
                       Launch Calculator Suite <ArrowRight className="w-4 h-4" />
                     </a>
                     <a
-                      href="#/about"
+                      href="/about"
                       className="bg-white hover:bg-neutral-50 text-neutral-700 border border-neutral-200 font-extrabold rounded-xl h-12 px-6 text-xs inline-flex items-center justify-center transition-all shadow-xs active:scale-95"
                     >
                       Audit Calculation Formulas
@@ -668,7 +707,7 @@ export default function App() {
                             key={cat}
                             onClick={() => {
                               setSelectedCategory(cat);
-                              window.location.hash = "#/tools";
+                              navigateTo("/tools");
                             }}
                             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold border transition-all active:scale-95 flex items-center gap-1 ${colorClass}`}
                           >
@@ -1070,7 +1109,7 @@ export default function App() {
                           Dismiss Roadmap
                         </button>
                         <a 
-                          href="#/tools"
+                          href="/tools"
                           onClick={() => setShowSandboxStrategyModal(false)}
                           className="flex-1 sm:flex-none h-11 px-6 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95 cursor-pointer"
                         >
@@ -1190,7 +1229,7 @@ export default function App() {
                   <h2 className="text-3xl font-extrabold text-[#111827] tracking-tight font-display">Featured Planning Systems</h2>
                 </div>
                 <a 
-                  href="#/tools" 
+                  href="/tools" 
                   className="text-xs font-extrabold text-[#2563EB] hover:text-[#1D4ED8] inline-flex items-center gap-1.5 group whitespace-nowrap bg-blue-50 hover:bg-blue-100 border border-blue-100 px-4 py-2 rounded-xl transition-all"
                 >
                   <span>Search All 31 Planning Tools</span> 
@@ -1203,7 +1242,7 @@ export default function App() {
                   <div
                      key={calc.id}
                      onClick={() => {
-                       window.location.hash = `#/calculator/${calc.id}`;
+                       navigateTo(`/calculator/${calc.id}`);
                      }}
                      className="p-6 rounded-3xl bg-white border border-neutral-200/80 hover:border-[#2563EB] transition-all cursor-pointer flex flex-col justify-between text-left group hover:shadow-lg relative overflow-hidden"
                   >
@@ -1319,7 +1358,7 @@ export default function App() {
 
                 <div className="pt-4">
                   <a 
-                    href="#/tools"
+                    href="/tools"
                     className="bg-white hover:bg-neutral-100 text-[#2563EB] font-extrabold px-8 py-3.5 rounded-xl text-xs inline-flex items-center gap-1.5 transition-all shadow-md hover:shadow-lg active:scale-95"
                   >
                     Open Suite Directory (31 Tools) <ArrowRight className="w-3.5 h-3.5" />
@@ -1412,7 +1451,7 @@ export default function App() {
                     layout
                     whileHover={{ y: -3 }}
                     onClick={() => {
-                      window.location.hash = `#/calculator/${calc.id}`;
+                      navigateTo(`/calculator/${calc.id}`);
                     }}
                     className="p-5 rounded-2xl bg-white border border-neutral-200 text-left cursor-pointer transition-all flex flex-col justify-between min-h-[160px] relative overflow-hidden hover:border-[#2563EB] hover:shadow-sm group"
                   >
@@ -1461,7 +1500,7 @@ export default function App() {
             <div className="mb-8 flex flex-wrap items-center">
               <nav className="inline-flex flex-wrap items-center gap-1.5 bg-neutral-50 border border-neutral-200/80 rounded-full px-4 py-1.5 text-xs text-neutral-500 shadow-xs">
                 <a 
-                  href="#/home" 
+                  href="/" 
                   className="flex items-center gap-1 text-neutral-500 hover:text-[#2563EB] transition-colors font-medium"
                 >
                   <Home className="w-3.5 h-3.5" />
@@ -1469,14 +1508,14 @@ export default function App() {
                 </a>
                 <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" />
                 <a 
-                  href="#/tools" 
+                  href="/tools" 
                   className="hover:text-[#2563EB] transition-colors font-medium"
                 >
                   Directory
                 </a>
                 <ChevronRight className="w-3.5 h-3.5 text-neutral-300 shrink-0" />
                 <button 
-                  onClick={() => { setSelectedCategory(activeCalc.category); window.location.hash = "#/tools"; }}
+                  onClick={() => { setSelectedCategory(activeCalc.category); navigateTo("/tools"); }}
                   className="hover:text-[#2563EB] transition-colors font-medium text-neutral-600"
                 >
                   {activeCalc.category}
@@ -1966,7 +2005,7 @@ export default function App() {
                     <div
                       key={calc.id}
                       onClick={() => {
-                        window.location.hash = `#/calculator/${calc.id}`;
+                        navigateTo(`/calculator/${calc.id}`);
                       }}
                       className="p-4 rounded-xl bg-white border border-neutral-200 hover:border-[#2563EB] hover:shadow-sm cursor-pointer transition-all text-left space-y-1.5 group flex flex-col justify-between min-h-[120px]"
                     >
@@ -2285,11 +2324,11 @@ export default function App() {
               An elegant, sitemap-organized financial planning suite. Built on standard progressive tax equations and safe withdraw amortization models. 100% private.
             </p>
             <div className="flex flex-wrap gap-x-4 gap-y-1 text-xs font-semibold text-neutral-400">
-              <a href="#/about" className="hover:text-[#2563EB] transition-colors">About Us</a>
+              <a href="/about" className="hover:text-[#2563EB] transition-colors">About Us</a>
               <span>•</span>
-              <a href="#/contact" className="hover:text-[#2563EB] transition-colors">Contact</a>
+              <a href="/contact" className="hover:text-[#2563EB] transition-colors">Contact</a>
               <span>•</span>
-              <a href="#/policies" className="hover:text-[#2563EB] transition-colors">Policies</a>
+              <a href="/policies" className="hover:text-[#2563EB] transition-colors">Policies</a>
             </div>
             <p className="text-[10px] text-neutral-400">
               &copy; 2026 Financial Calculator. All rights reserved.
@@ -2308,7 +2347,7 @@ export default function App() {
                   .map(calc => (
                     <li key={calc.id}>
                       <a
-                        href={`#/calculator/${calc.id}`}
+                        href={`/calculator/${calc.id}`}
                         className={`hover:text-[#2563EB] transition-colors truncate block text-left max-w-full ${activeCalcId === calc.id && currentView === "calculator" ? "text-[#2563EB] font-bold" : ""}`}
                       >
                         {calc.name}
