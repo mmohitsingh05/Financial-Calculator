@@ -1727,117 +1727,54 @@ export default function App() {
               </p>
             </header>
 
-            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch max-w-5xl mx-auto">
               
-              {/* Left column: Contact form */}
-              <div className="lg:col-span-7 bg-white border border-neutral-200 rounded-3xl p-6 md:p-8 shadow-sm">
-                
-                {contactSuccess ? (
-                  <motion.div 
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    className="py-12 text-center space-y-4"
+              {/* Left column: Direct Support Channel */}
+              <div className="lg:col-span-7 bg-white border border-neutral-200 rounded-3xl p-8 shadow-sm flex flex-col justify-between text-left space-y-6">
+                <div className="space-y-4">
+                  <div className="inline-flex items-center gap-2 px-3 py-1 bg-blue-50 border border-blue-100 rounded-full text-blue-600 text-xs font-semibold">
+                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-pulse"></span>
+                    Direct Communication Channel
+                  </div>
+                  <h3 className="font-display text-2xl font-extrabold text-[#111827] tracking-tight">
+                    Get in touch via Email
+                  </h3>
+                  <p className="text-xs text-[#4B5563] leading-relaxed">
+                    We have simplified our contact process. Instead of filling out complex forms, you can reach out directly to our principal support and development inbox. Whether you have calculation inquiries, tax bracket updates, custom feature requests, or business proposals, we read every single message.
+                  </p>
+                </div>
+
+                <div className="bg-[#F8FAFC] border border-neutral-200/60 rounded-2xl p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 bg-blue-50 border border-blue-100 rounded-xl flex items-center justify-center text-blue-600 shrink-0">
+                      <Mail className="w-5 h-5" />
+                    </div>
+                    <div className="space-y-0.5 min-w-0">
+                      <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Primary Email Address</p>
+                      <p className="text-sm font-bold text-neutral-900 select-all truncate">
+                        mohitsinghatwork05@gmail.com
+                      </p>
+                    </div>
+                  </div>
+                  <a 
+                    href="mailto:mohitsinghatwork05@gmail.com"
+                    className="inline-flex items-center justify-center gap-1.5 bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-xl h-10 px-4 text-xs transition-colors cursor-pointer shrink-0"
                   >
-                    <div className="w-12 h-12 bg-blue-50 border border-blue-100 rounded-full flex items-center justify-center mx-auto text-[#2563EB]">
-                      <Check className="w-6 h-6 stroke-[3px]" />
-                    </div>
-                    <h3 className="font-bold text-lg text-[#111827]">Message Sent Securely</h3>
-                    <p className="text-xs text-[#4B5563] max-w-md mx-auto leading-relaxed">
-                      Thank you, <strong>{contactName}</strong>. Your inquiry has been processed under support ticket ID <strong>#FC-2026-{(Math.floor(Math.random() * 9000) + 1000)}</strong>. A technical planning expert will reply within 24 business hours.
-                    </p>
-                    <button 
-                      onClick={resetContactForm}
-                      className="bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-full h-9 px-5 text-xs transition-colors cursor-pointer"
-                    >
-                      Submit Another Inquiry
-                    </button>
-                  </motion.div>
-                ) : (
-                  <form onSubmit={handleContactSubmit} className="space-y-4 text-left">
-                    <h3 className="font-extrabold text-sm text-[#111827] uppercase tracking-wider pb-2 border-b border-neutral-100">
-                      Submit Secure Inquiry
-                    </h3>
- 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Full Name</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={contactName}
-                          onChange={(e) => setContactName(e.target.value)}
-                          placeholder="e.g. David Sterling"
-                          className="w-full h-10 border border-neutral-200 rounded-lg px-3 text-xs bg-[#F8FAFC] focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none transition-colors text-[#111827]"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Email Address</label>
-                        <input 
-                          type="text" 
-                          required
-                          value={contactEmail}
-                          onChange={(e) => setContactEmail(e.target.value)}
-                          placeholder="david@example.com"
-                          className="w-full h-10 border border-neutral-200 rounded-lg px-3 text-xs bg-[#F8FAFC] focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none transition-colors text-[#111827]"
-                        />
-                      </div>
-                    </div>
- 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Subject</label>
-                        <input 
-                          type="text" 
-                          value={contactSubject}
-                          onChange={(e) => setContactSubject(e.target.value)}
-                          placeholder="Brief topic..."
-                          className="w-full h-10 border border-neutral-200 rounded-lg px-3 text-xs bg-[#F8FAFC] focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none transition-colors text-[#111827]"
-                        />
-                      </div>
-                      <div className="space-y-1.5">
-                        <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Inquiry Focus</label>
-                        <select
-                          value={contactInterest}
-                          onChange={(e) => setContactInterest(e.target.value)}
-                          className="w-full h-10 border border-[#CBD5E1] rounded-lg px-3 text-xs bg-[#F8FAFC] focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none text-[#111827]"
-                        >
-                          <option>Calculation Inquiry</option>
-                          <option>Tax Brackets Update</option>
-                          <option>Bug Report</option>
-                          <option>Formula Suggestion</option>
-                          <option>General Support</option>
-                        </select>
-                      </div>
-                    </div>
+                    <span>Send Email</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </a>
+                </div>
 
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-neutral-500 uppercase tracking-wider">Inquiry Message</label>
-                      <textarea 
-                        required
-                        rows={4}
-                        value={contactMessage}
-                        onChange={(e) => setContactMessage(e.target.value)}
-                        placeholder="Write your detailed questions or feedback here..."
-                        className="w-full border border-neutral-200 rounded-lg p-3 text-xs bg-[#F8FAFC] focus:bg-white focus:border-[#2563EB] focus:ring-1 focus:ring-[#2563EB]/10 outline-none transition-colors text-[#111827]"
-                      />
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      disabled={isSubmittingContact}
-                      className="w-full bg-[#2563EB] hover:bg-[#1D4ED8] text-white font-bold rounded-lg h-10 text-xs transition-colors cursor-pointer flex items-center justify-center gap-1"
-                    >
-                      {isSubmittingContact ? "Submitting Inquiry..." : "Submit Inquiry Securely"}
-                    </button>
-                  </form>
-                )}
+                <p className="text-[11px] text-neutral-400 leading-relaxed">
+                  Typical response time is within 12-24 business hours. Thank you for using our personal finance suite.
+                </p>
               </div>
 
               {/* Right column: Info details */}
-              <div className="lg:col-span-5 space-y-6 text-left">
-                <div className="bg-white border border-neutral-200 rounded-3xl p-6 space-y-5 shadow-sm">
+              <div className="lg:col-span-5 space-y-6 text-left flex flex-col justify-between">
+                <div className="bg-white border border-neutral-200 rounded-3xl p-6 space-y-5 shadow-sm flex-1">
                   <h3 className="font-extrabold text-xs text-[#111827] uppercase tracking-widest border-b border-neutral-100 pb-2">
-                    Help Desk & HQ
+                    Help Desk & Details
                   </h3>
 
                   <div className="space-y-4">
@@ -1845,7 +1782,7 @@ export default function App() {
                       <Mail className="w-4 h-4 text-[#2563EB] shrink-0 mt-0.5" />
                       <div className="space-y-0.5">
                         <p className="text-[10px] font-bold text-neutral-400 uppercase tracking-wider">Strategic Inquiries</p>
-                        <p className="text-xs font-semibold text-[#111827]">support@financialcalculator.com</p>
+                        <p className="text-xs font-semibold text-[#111827]">mohitsinghatwork05@gmail.com</p>
                       </div>
                     </div>
 
@@ -1869,7 +1806,7 @@ export default function App() {
                   </div>
                 </div>
 
-                <div className="bg-[#F8FAFC] border border-neutral-200 rounded-3xl p-6 space-y-2">
+                <div className="bg-[#F8FAFC] border border-neutral-200 rounded-3xl p-6 space-y-2 mt-6">
                   <h4 className="font-bold text-xs text-[#111827] uppercase tracking-wider">CPA-Modelling Standard</h4>
                   <p className="text-[11px] text-[#4B5563] leading-relaxed">
                     Our platform calculations are continuously index-aligned to standard municipal and IRS guideline updates. If you spot a fractional variance, please let us know immediately.
